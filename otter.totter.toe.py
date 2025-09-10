@@ -95,8 +95,8 @@ class TicTacToeEnv:
 
         return 0
     
-    # GUI definition
-    def start_gui(agent, env):
+# GUI definition
+def start_gui(agent, env):
         """
         Launch interactive Tic-Tac-Toe board:
         - Human plays X, agent plays O
@@ -182,21 +182,6 @@ class TicTacToeEnv:
             for j in range(3):
                 buttons[i][j].on_click(on_click(i, j))
 
-# EXTENSION
-# Neural Network for Q-function
-class QNetwork(nn.Module):
-    def __init__(self, input_dim=9, hidden_dim=128, output_dim=9):
-        super(QNetwork, self).__init__()
-        self.fc1 = nn.Linear(input_dim, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc3 = nn.Linear(hidden_dim, output_dim)
-
-    def forward(self, x):
-        x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        return self.fc3(x)
-
-
 class TicTacToeAgent(ABC):
     @abstractmethod
     def policy(self, state, env):
@@ -224,63 +209,22 @@ class TicTacToeAgent(ABC):
         """
         pass
 
-class NeuralQAgent(TicTacToeAgent):
-    """Neural Network Q-Learning Agent for Tic-Tac-Toe"""
-    def __init__(self, alpha=0.001, gamma=0.9, epsilon=0.3, decay=0.9995, min_eps=0.05):
-        self.gamma = gamma
-        self.epsilon = epsilon
-        self.decay = decay
-        self.min_eps = min_eps
-
-        self.model = QNetwork()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=alpha)
-        self.loss_fn = nn.MSELoss()
-
-    def state_to_tensor(self, state):
-        """Flatten board into torch tensor"""
-        return torch.tensor(state.flatten(), dtype=torch.float32).unsqueeze(0)
-
+# Random Agent Baseline
+class RandomAgent(TicTacToeAgent):
+    """Baseline: selects moves at random."""
     def policy(self, state, env):
-        """Greedy policy"""
-        actions = env.available_actions()
-        state_tensor = self.state_to_tensor(state)
-        q_values = self.model(state_tensor).detach().numpy().flatten()
-
-      # Mask illegal moves by assigning very negative value
-        mask = np.full(9, -1e9)
-        for (i, j) in actions:
-            mask[i * 3 + j] = q_values[i * 3 + j]
-        best_idx = np.argmax(mask)
-        return (best_idx // 3, best_idx % 3)
+        # TODO: implement
+        return random.choice(env.available_actions())
 
     def training_policy(self, state, env):
-        """ε-greedy policy"""
-        if random.random() < self.epsilon:
-            return random.choice(env.available_actions())
-        return self.policy(state, env)
+        # TODO: implement
+        return random.choice(env.available_actions())
 
-    def learn(self, state, action, reward, next_state, env):
-        state_tensor = self.state_to_tensor(state)
-        next_state_tensor = self.state_to_tensor(next_state)
+    def learn(self, *args, **kwargs):
+        # TODO: implement
+        pass
 
-        # Predict current Q
-        q_values = self.model(state_tensor)
-        q_value = q_values[0, action[0]*3 + action[1]]
-
-        # Compute target
-        next_q_values = self.model(next_state_tensor).detach().numpy().flatten()
-        if env.available_actions():
-            future = max(next_q_values[a[0]*3 + a[1]] for a in env.available_actions())
-        else:
-            future = 0
-        target = reward + self.gamma * future
-
-        # Backprop
-        loss = self.loss_fn(q_value, torch.tensor(target, dtype=torch.float32))
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
-
-        # Decay epsilon
-        self.epsilon = max(self.min_eps, self.epsilon * self.decay)
-        self.epsilon = max(self.min_eps, self.epsilon * self.decay)
+# Play against baseline random agent
+env = TicTacToeEnv()
+print("### Playing against RandomAgent ###")
+start_gui(RandomAgent(), env)
