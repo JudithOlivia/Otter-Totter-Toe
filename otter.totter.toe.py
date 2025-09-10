@@ -1,5 +1,5 @@
 # Imports
-from readline import redisplay
+from IPython.display import display
 import numpy as np
 import random
 from abc import ABC, abstractmethod
@@ -116,7 +116,7 @@ class TicTacToeEnv:
             layout=widgets.Layout(grid_template_columns='repeat(3,80px)', grid_gap='3px'))
 
         # Display UI
-        redisplay(widgets.VBox([status, btn_reset, grid]))
+        display(widgets.VBox([status, btn_reset, grid]))
 
         def reset_game(_=None):
             """Clear board UI and reset environment."""
