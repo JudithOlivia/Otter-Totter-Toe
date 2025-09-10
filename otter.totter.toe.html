@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Tic Tac Toe</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: white;
+      border: 2px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .cell img {
+      max-width: 80%;
+      max-height: 80%;
+    }
+    .message {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    button {
+      margin-top: 15px;
+      padding: 8px 15px;
+      border: none;
+      background: #333;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #444;
+    }
+  </style>
+</head>
+<body>
+  <h1>Image Tic Tac Toe</h1>
+  <div class="board" id="board"></div>
+  <div class="message" id="message"></div>
+  <button onclick="resetGame()">Restart</button>
+
+  <script>
+    const boardElement = document.getElementById("board");
+    const messageElement = document.getElementById("message");
+
+    // Replace with your own images:
+    const player1Img = "https://upload.wikimedia.org/wikipedia/commons/9/99/OOjs_UI_icon_userAvatar.svg";
+    const player2Img = "https://upload.wikimedia.org/wikipedia/commons/4/44/Simple_icon_logo.svg";
+
+    let board = Array(9).fill(null);
+    let currentPlayer = "X";
+    let gameActive = true;
+
+    // Winning combinations
+    const winningCombinations = [
+      [0,1,2],
+      [3,4,5],
+      [6,7,8],
+      [0,3,6],
+      [1,4,7],
+      [2,5,8],
+      [0,4,8],
+      [2,4,6]
+    ];
+
+    function createBoard() {
+      boardElement.innerHTML = "";
+      board.forEach((_, index) => {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.dataset.index = index;
+        cell.addEventListener("click", handleCellClick);
+        boardElement.appendChild(cell);
+      });
+    }
+
+    function handleCellClick(e) {
+      const index = e.target.dataset.index;
+      if (board[index] || !gameActive) return;
+
+      board[index] = currentPlayer;
+      const img = document.createElement("img");
+      img.src = currentPlayer === "X" ? player1Img : player2Img;
+      e.target.appendChild(img);
+
+      if (checkWinner()) {
+        messageElement.textContent = `Player ${currentPlayer} wins!`;
+        gameActive = false;
+      } else if (board.every(cell => cell)) {
+        messageElement.textContent = "It's a draw!";
+        gameActive = false;
+      } else {
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+      }
+    }
+
+    function checkWinner() {
+      return winningCombinations.some(combo => {
+        return combo.every(index => board[index] === currentPlayer);
+      });
+    }
+
+    function resetGame() {
+      board = Array(9).fill(null);
+      currentPlayer = "X";
+      gameActive = true;
+      messageElement.textContent = "";
+      createBoard();
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>
