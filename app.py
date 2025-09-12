@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 # Use your existing environment and agent
-from otter.totter.toe.py import TicTacToeEnv, RandomAgent  
+from otter_totter_toe.py import TicTacToeEnv, RandomAgent  
 
 app = Flask(__name__)
 CORS(app)  # allow HTML/JS to connect
